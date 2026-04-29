@@ -64,7 +64,7 @@ def add_questions(df):
     few_shots = [
         {
             "role": "system",
-            "content": "You provide questions that a given statement could be an answer to.You do not have to fact-check the statement or mention its potential incorrectness. You should only give one single question."
+            "content": "You provide questions that a given statement could be an answer to. You do not have to fact-check the statement or mention its potential incorrectness. You should only give one single question."
         },
         {
             "role": "user",
@@ -76,7 +76,7 @@ def add_questions(df):
         },
         {
             "role": "user",
-            "content": "The gazelle has distinctive orange and black stripes and is an apex predator"
+            "content": "The gazelle has distinctive orange and black stripes and is an apex predator."
         },
         {
             "role": "assistant",
@@ -92,7 +92,7 @@ def add_questions(df):
         },
         {
             "role": "user",
-            "content": "Lanthanum appears in its standard state as Liquid."
+            "content": "Lanthanum appears in its standard state as liquid."
         },
         {
             "role": "assistant",
@@ -178,7 +178,7 @@ def add_questions(df):
                 do_sample=True,
                 temperature=0.7,
                 top_p=0.9,
-                pad_token_id=tokenizer.pad_token_id 
+                pad_token_id=tokenizer.pad_token_id
             )
         
         generated_ids = output[0][input_ids.shape[-1]:]
@@ -193,20 +193,10 @@ def add_questions(df):
     
     return df
 
-def prepare_deception_task(df):
-    df_deception_task = df[df['split'] == 'deception_task']
-    df_deception_task = df_deception_task.reset_index(drop=True)
-    df_responses = pd.read_csv(DATA_DIR / "true_false_dataset" / "honest_lie_deception_responses.csv").reset_index(drop=True)
-    df_deception_task[['honest_response', 'lie_response', 'deception_no_lie_response']] = df_responses[['honest_response', 'lie_response', 'deception_no_lie_response']]
-    return df_deception_task
-
 def main():
     df = prepare_true_false_dataset()
     df = add_questions(df)
     df.to_csv(DATA_DIR / "true_false_dataset" / "true_false_dataset_with_questions.csv", index=False)
-
-    decept_df = prepare_deception_task(df)
-    decept_df.to_csv(DATA_DIR / "true_false_dataset" / "deception_task.csv", index=False)
 
 if __name__ == "__main__":
     main()
