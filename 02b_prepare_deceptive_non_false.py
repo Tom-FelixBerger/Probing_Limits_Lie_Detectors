@@ -150,9 +150,12 @@ def generate_response(messages, model, tokenizer, max_new_tokens):
         return_tensors="pt",
     ).to(model.device)
 
+    attention_mask = torch.ones_like(input_ids)
+
     with torch.no_grad():
         output_ids = model.generate(
             input_ids,
+            attention_mask=attention_mask,
             max_new_tokens=max_new_tokens,
             do_sample=False,
             pad_token_id=tokenizer.pad_token_id,
@@ -172,7 +175,7 @@ def prepare_deceptive_non_falsities(df, model, tokenizer):
 
         for question in tqdm(df["question"], desc=f"Generating '{deception_key}'"):
             messages = generate_prompt(question, deception_key)
-            response = generate_response(messages, model, tokenizer)
+            response = generate_response(messages, model, tokenizer, max_new_tokens=100)
             responses.append(response)
 
         result[col_name] = responses
@@ -183,6 +186,8 @@ def prepare_deceptive_non_falsities(df, model, tokenizer):
 def main():
     data_file = DATA_DIR / "true_false_dataset" / "true_false_dataset_with_questions.csv"
     df = pd.read_csv(data_file)
+    # select 10 random rows for testing
+    df = df.sample(n=10, random_state=42).reset_index(drop=True)
 
     model, tokenizer = load_model_and_tokenizer()
     df_deceptive_non_falsities = prepare_deceptive_non_falsities(df, model, tokenizer)
